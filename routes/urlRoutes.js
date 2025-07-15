@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const axios = require('axios');
+const https = require('https');
 const { shortenUrl } = require('../controllers/urlController');
 const Url = require('../models/url');
 
@@ -28,6 +30,38 @@ router.get('/:shortCode', async (req, res) => {
 
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Route 3: Register to evaluation-service (POST)
+router.post('/register', async (req, res) => {
+  try {
+    const response = await axios.post(
+      'https://20.244.56.144/evaluation-service/register',
+      {
+        email: "manisth2210130@akgec.ac.in",
+        name: "Manisth Singh",
+        mobileNo: "6393136745",
+        githubUsername: "Manisth7991",
+        rollno: "2200270100104",
+        accesscode: "uuMbyY"
+      },
+      {
+        httpsAgent: new https.Agent({
+          rejectUnauthorized: false // allow self-signed cert
+        })
+      }
+    );
+
+    // Return email, name, rollno from response
+    const { email, name, rollno } = response.data;
+    res.status(200).json({ email, name, rollno });
+
+  } catch (error) {
+    res.status(500).json({
+      message: 'Registration failed',
+      error: error.response?.data || error.message
+    });
   }
 });
 
